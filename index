@@ -1,0 +1,34 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use feature qw(fc);
+use autodie;
+use Encode qw(decode);
+use InvertedIndex;
+use Query;
+use Term::ReadLine;
+
+
+my $index = InvertedIndex->new;
+open my $fh, '<:encoding(utf-8)', shift || 'training.txt';
+while (<$fh>)
+{
+    chomp;
+    $index->add_document($_, fc $_);
+}
+
+
+my $term = Term::ReadLine->new('InvertedIndex');
+while (defined($_ = $term->readline('query: ')))
+{
+    eval
+    {
+        my $query = Query::parse(decode 'UTF-8' => $_);
+        my $row   = $query->run($index)->listref;
+        print $_, "\t", $index->get_document($_), "\n" for @$row;
+        print scalar @$row, " results\n";
+    };
+    warn "Invalid query: $@\n" if $@;
+}
+
+print "\nCleaning up, this may take a bit...\n";
