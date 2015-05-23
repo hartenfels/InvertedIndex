@@ -1,8 +1,17 @@
+#include <functional>
 #include <list>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+// to avoid conflict with a macro in perl
+#undef seed
+#include <algorithm>
+
+// oh yeah C++
+typedef std::back_insert_iterator<std::list<int> >           OutIt;
+typedef std::list<int>::const_iterator                        InIt;
+typedef std::function<OutIt (InIt, InIt, InIt, InIt, OutIt)> RowOp;
 
 
 class Row
@@ -39,81 +48,23 @@ public:
     }
 
 
+    void op_with(const Row* rhs, RowOp op)
+    {
+        std::list<int> out;
+        op(     ids.begin(),      ids.end(),
+           rhs->ids.begin(), rhs->ids.end(),
+           std::back_inserter(out));
+        ids = out;
+    }
+
     void and_with(const Row* rhs)
-    {
-        auto lit =      ids.begin();
-        auto rit = rhs->ids.begin();
+    {   op_with(rhs, std::set_intersection<InIt, InIt, OutIt>); }
 
-        while (lit != ids.end() && rit != rhs->ids.end())
-        {
-            if (*lit < *rit)
-            {
-                lit = ids.erase(lit);
-            }
-            else if (*lit > *rit)
-            {
-                ++rit;
-            }
-            else
-            {
-                ++lit;
-                ++rit;
-            }
-        }
-
-        ids.erase(lit, ids.end());
-    }
-
-
-    void or_with(const Row* rhs)
-    {
-        auto lit =      ids.begin();
-        auto rit = rhs->ids.begin();
-
-        while (lit != ids.end() && rit != rhs->ids.end())
-        {
-            if (*lit < *rit)
-            {
-                ++lit;
-            }
-            else if (*lit > *rit)
-            {
-                ids.insert(lit, *rit);
-                ++rit;
-            }
-            else
-            {
-                ++lit;
-                ++rit;
-            }
-        }
-
-        ids.insert(lit, rit, rhs->ids.end());
-    }
-
+    void  or_with(const Row* rhs)
+    {   op_with(rhs, std::set_union       <InIt, InIt, OutIt>); }
 
     void but_with(const Row* rhs)
-    {
-        auto lit =      ids.begin();
-        auto rit = rhs->ids.begin();
-
-        while (lit != ids.end() && rit != rhs->ids.end())
-        {
-            if (*lit < *rit)
-            {
-                ++lit;
-            }
-            else if (*lit > *rit)
-            {
-                ++rit;
-            }
-            else
-            {
-                lit = ids.erase(lit);
-                ++rit;
-            }
-        }
-    }
+    {   op_with(rhs, std::set_difference  <InIt, InIt, OutIt>); }
 
 
 private:
