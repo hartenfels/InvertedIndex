@@ -1,13 +1,17 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use feature qw(fc);
+use feature qw(fc say);
 use autodie;
-use Encode qw(decode);
+use Encode  qw(decode);
+use POSIX   qw(strftime);
+use Term::ReadLine;
 use InvertedIndex;
 use Query;
-use Term::ReadLine;
 
+
+print 'Indexing';
+my $start = time;
 
 my $index = InvertedIndex->new;
 open my $fh, '<:encoding(utf-8)', shift || 'training.txt';
@@ -17,6 +21,8 @@ while (<$fh>)
     $index->add_document($_, fc $_);
 }
 
+say strftime " took %M:%S" => gmtime(time - $start);
+
 
 my $term = Term::ReadLine->new('InvertedIndex');
 while (defined($_ = $term->readline('query: ')))
@@ -25,8 +31,8 @@ while (defined($_ = $term->readline('query: ')))
     {
         my $query = Query::parse(decode 'UTF-8' => $_);
         my $row   = $query->run($index)->listref;
-        print $_, "\t", $index->get_document($_), "\n" for @$row;
-        print scalar @$row, " results\n";
+        say $_, "\t", $index->get_document($_) for @$row;
+        say scalar @$row, " results";
     };
     warn "Invalid query: $@\n" if $@;
 }
