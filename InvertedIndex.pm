@@ -8,7 +8,7 @@ use Inline CPP => './InvertedIndex.cpp';
 
 package InvertedIndex;
 
-our $stemmer = Lingua::Stem::Snowball->new(lang => 'en');
+my $stemmer = Lingua::Stem::Snowball->new(lang => 'en');
 
 sub index
 {
@@ -17,6 +17,18 @@ sub index
     my @words = split ' ', fc $document;
     $stemmer->stem_in_place(\@words);
     $self->add_token($id, $_) for @words;
+}
+
+sub find
+{
+    my ($self, $token) = @_;
+
+    my @words = (fc $token);
+    $stemmer->stem_in_place(\@words);
+
+    my $row = Row->new;
+    $self->fetch($words[0], $row);
+    $row
 }
 
 

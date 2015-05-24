@@ -29,8 +29,7 @@ ok !defined $index->get_document(scalar @DOCS), 'large document ID gives undef';
 sub fetch_ok
 {
     my ($token, $want, $name) = @_;
-    my $row = Row->new;
-    $index->fetch(fc $token, $row);
+    my $row = $index->find($token);
     is_deeply \@$row, $want, $name;
 }
 

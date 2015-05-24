@@ -36,7 +36,7 @@ sub parse { ${$parser->parse(\shift, 'Query')} }
 sub Query::do_tok
 {
     my (undef, $token) = @_;
-    bless [fc $token] => 'Query::Token'
+    bless \$token => 'Query::Token'
 }
 
 sub Query::do_op
@@ -55,12 +55,7 @@ sub Query::do_par { $_[2] }
 sub Query::Token::run
 {
     my ($self, $index) = @_;
-
-    $InvertedIndex::stemmer->stem_in_place($self);
-
-    my $row = Row->new;
-    $index->fetch($self->[0], $row);
-    $row
+    $index->find($$self)
 }
 
 sub Query::Op::run
