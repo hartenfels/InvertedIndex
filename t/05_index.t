@@ -46,5 +46,8 @@ fetch_ok 'dog',      [],       'punctuation is not stripped';
 fetch_ok 'dog.',     [0],      'fetching with punctuation works';
 fetch_ok '.',        [1],      'fetching punctuation on its own works too';
 
+fetch_ok 'foxes',    [0],      'stemmer works as expected';
+fetch_ok 'FUßBAL',   [1 .. 3], 'stemming happens after case folding';
+
 
 done_testing
