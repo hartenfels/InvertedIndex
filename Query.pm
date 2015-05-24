@@ -42,12 +42,12 @@ sub Query::do_op
 {
     my ($op, undef, @args) = @_;
     return $args[0] if @args == 1;
-    bless ["${op}_with", @args] => 'Query::Op'
+    bless [$op, @args] => 'Query::Op'
 }
 
-sub Query::do_but { Query::do_op(but => @_) }
-sub Query::do_or  { Query::do_op(or  => @_) }
-sub Query::do_and { Query::do_op(and => @_) }
+sub Query::do_but { Query::do_op(but_with => @_) }
+sub Query::do_or  { Query::do_op( or_with => @_) }
+sub Query::do_and { Query::do_op(and_with => @_) }
 sub Query::do_par { $_[2] }
 
 
