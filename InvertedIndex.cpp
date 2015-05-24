@@ -103,7 +103,7 @@ public:
     {
         return id >= 0 && id < documents.size()
              ? documents[id].c_str()
-             : NULL;
+             : nullptr;
     }
 
 
