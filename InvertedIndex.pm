@@ -5,31 +5,23 @@ use Inline CPP => config => ccflags => '-std=c++11 -Wall -Wextra -pedantic';
 use Inline CPP => './InvertedIndex.cpp';
 
 
-package InvertedIndex
+sub InvertedIndex::index
 {
-
-    sub index
-    {
-        my ($self, $document) = @_;
-        my $id = $self->add_document($document);
-        $self->add_token($id, $_) for split ' ', fc $document;
-    }
-
+    my ($self, $document) = @_;
+    my $id = $self->add_document($document);
+    $self->add_token($id, $_) for split ' ', fc $document;
 }
 
 
-package Row
+package Row;
+
+use overload '@{}' => sub { shift->listref };
+
+sub build
 {
-
-    use overload '@{}' => sub { shift->listref };
-
-    sub build
-    {
-        my $self = shift->new;
-        $self->add_id($_) for @_;
-        $self
-    }
-
+    my $self = shift->new;
+    $self->add_id($_) for @_;
+    $self
 }
 
 
