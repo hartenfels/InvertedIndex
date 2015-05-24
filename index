@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use feature qw(fc say);
+use feature qw(say);
 use autodie;
 use Encode  qw(decode);
 use POSIX   qw(strftime);
@@ -10,18 +10,14 @@ use InvertedIndex;
 use Query;
 
 
-print 'Indexing';
+say 'Indexing...';
 my $start = time;
 
 my $index = InvertedIndex->new;
 open my $fh, '<:encoding(utf-8)', shift || 'training.txt';
-while (<$fh>)
-{
-    chomp;
-    $index->add_document($_, fc $_);
-}
+$index->index($_) while <$fh>;
 
-say strftime " took %M:%S" => gmtime(time - $start);
+say strftime 'Indexing took %M:%S' => gmtime(time - $start);
 
 
 my $term = Term::ReadLine->new('InvertedIndex');

@@ -14,7 +14,7 @@ my @DOCS = (
 
 
 ok my $index = InvertedIndex->new, 'creating index works';
-$index->add_document($_, fc $_) for @DOCS;
+$index->index($_) for @DOCS;
 
 
 for (0 .. $#DOCS)

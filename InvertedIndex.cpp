@@ -77,17 +77,17 @@ class InvertedIndex
 {
 public:
 
-    void add_document(const char* original, const char* folded)
+    int add_document(const char* document)
     {
-        auto id = documents.size();
-        documents.push_back(original);
+        int id = documents.size();
+        documents.push_back(document);
+        return id;
+    }
 
-        std::stringstream ss(folded);
-        std::string token;
-        while (std::getline(ss, token, ' '))
-        {
-            indices[token].add_id(id);
-        }
+
+    void add_token(int id, const char* token)
+    {
+        indices[token].add_id(id);
     }
 
 
