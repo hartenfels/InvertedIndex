@@ -1,2 +1,4 @@
 _Inline
+local
+cpanfile.snapshot
 training.txt
