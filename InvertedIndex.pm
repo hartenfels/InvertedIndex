@@ -1,15 +1,22 @@
 use strict;
 use warnings;
 use feature qw(fc);
+use Lingua::Stem::Snowball;
 use Inline CPP => config => ccflags => '-std=c++11 -Wall -Wextra -pedantic';
 use Inline CPP => './InvertedIndex.cpp';
 
 
-sub InvertedIndex::index
+package InvertedIndex;
+
+our $stemmer = Lingua::Stem::Snowball->new(lang => 'en');
+
+sub index
 {
     my ($self, $document) = @_;
-    my $id = $self->add_document($document);
-    $self->add_token($id, $_) for split ' ', fc $document;
+    my $id    = $self->add_document($document);
+    my @words = split ' ', fc $document;
+    $stemmer->stem_in_place(\@words);
+    $self->add_token($id, $_) for @words;
 }
 
 

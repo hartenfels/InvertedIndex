@@ -27,7 +27,7 @@ while (defined($_ = $term->readline('query: ')))
     {
         my $query = Query::parse(decode 'UTF-8' => $_);
         my $row   = $query->run($index)->listref;
-        say $_, "\t", $index->get_document($_) for @$row;
+        print $_, "\t", $index->get_document($_) for @$row;
         say scalar @$row, " results";
     };
     warn "Invalid query: $@\n" if $@;

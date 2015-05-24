@@ -2,6 +2,7 @@ package Query;
 use strict;
 use warnings;
 use feature qw(fc);
+use InvertedIndex;
 use Marpa::R2;
 
 my $grammar = <<'END';
@@ -35,7 +36,7 @@ sub parse { ${$parser->parse(\shift, 'Query')} }
 sub Query::do_tok
 {
     my (undef, $token) = @_;
-    bless \$token => 'Query::Token'
+    bless [fc $token] => 'Query::Token'
 }
 
 sub Query::do_op
@@ -54,8 +55,11 @@ sub Query::do_par { $_[2] }
 sub Query::Token::run
 {
     my ($self, $index) = @_;
+
+    $InvertedIndex::stemmer->stem_in_place($self);
+
     my $row = Row->new;
-    $index->fetch(fc $$self, $row);
+    $index->fetch($self->[0], $row);
     $row
 }
 
