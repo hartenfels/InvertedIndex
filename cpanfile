@@ -1,4 +1,4 @@
-requires 'perl', '5.16';
+requires 'perl', '5.016';
 requires 'Inline::CPP';
 requires 'Lingua::Stem::Snowball';
 requires 'Marpa::R2';
