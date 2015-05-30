@@ -12,29 +12,23 @@ use Query;
 
 my $docs  = shift // 'training.txt';
 my $stash = "$docs.stash";
+
+say 'Building index...';
+my $start = time;
 my $index = InvertedIndex->new;
 
-
-if (-e $stash)
+say "Trying to unstash $stash...";
+unless ($index->unstash($stash))
 {
-    say 'Unstashing...';
-    my $start = time;
-    $index->unstash($stash);
-    say strftime 'Unstashing took %M:%S' => gmtime(time - $start);
-}
-else
-{
-    say 'Indexing...';
-    my $start = time;
-
+    say "Indexing $docs...";
     open my $fh, '<:encoding(utf-8)', $docs;
     $index->index($_) while <$fh>;
-
-    say strftime 'Indexing took %M:%S' => gmtime(time - $start);
 
     say 'Stashing..';
     $index->stash($stash);
 }
+
+say strftime 'Index built after %M:%S' => gmtime(time - $start);
 
 
 my $term = Term::ReadLine->new('InvertedIndex');

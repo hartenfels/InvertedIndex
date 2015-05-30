@@ -71,9 +71,7 @@ public:
     void stash(std::ofstream& out)
     {
         for (int i : ids)
-        {
-            out << i << '\037';
-        }
+        {   out << i << '\037'; }
     }
 
 
@@ -136,9 +134,10 @@ public:
     }
 
 
-    void unstash(const char* path)
+    bool unstash(const char* path)
     {
         std::ifstream in(path);
+        if (!in) { return false; }
 
         while (in.peek() != '\035')
         {
@@ -154,12 +153,14 @@ public:
         }
         in.ignore();
 
-        while (in.peek() != EOF)
+        while (!in.eof())
         {
             std::string doc;
             std::getline(in, doc, '\037');
             documents.push_back(doc);
         }
+
+        return true;
     }
 
 
