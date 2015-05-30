@@ -8,7 +8,8 @@ use Inline CPP => './InvertedIndex.cpp';
 
 package InvertedIndex;
 
-my $stemmer   = Lingua::Stem::Snowball->new(lang => 'en');
+my $stemmer = Lingua::Stem::Snowball->new(lang => 'en');
+# http://www.textfixer.com/resources/common-english-words.txt
 my %stopwords = map { $_ => undef } split ' ', <<HERE;
 a able about across after all almost also am among an and any are as at be
 because been but by can cannot could dear did do does either else ever every
