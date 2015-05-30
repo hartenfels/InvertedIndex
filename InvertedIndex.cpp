@@ -14,9 +14,9 @@ typedef std::back_insert_iterator<std::list<int> >           OutIt;
 typedef std::list<int>::const_iterator                        InIt;
 typedef std::function<OutIt (InIt, InIt, InIt, InIt, OutIt)> RowOp;
 
-constexpr char  GROUP_SEP = '\035',
-               RECORD_SEP = '\036',
-                 UNIT_SEP = '\037';
+static constexpr char  GROUP_SEP = '\035',
+                      RECORD_SEP = '\036',
+                        UNIT_SEP = '\037';
 
 class Row
 {
@@ -121,6 +121,11 @@ public:
     void stash(const char* path)
     {
         std::ofstream out(path);
+        if (!out)
+        {
+            warn("Couldn't write to stash.\n");
+            return;
+        }
 
         for (auto pair : indices)
         {
@@ -138,13 +143,17 @@ public:
     bool unstash(const char* path)
     {
         std::ifstream in(path);
-        if (!in) { return false; }
+        if (!in)
+        {
+            warn("Couldn't read from stash.\n");
+            return false;
+        }
 
-        while (in.peek() != GROUP_SEP)
+        while (in && in.peek() != GROUP_SEP)
         {
             std::string token;
             std::getline(in, token, UNIT_SEP);
-            while (in.peek() != RECORD_SEP)
+            while (in && in.peek() != RECORD_SEP)
             {
                 std::string id;
                 std::getline(in, id, UNIT_SEP);
@@ -152,9 +161,16 @@ public:
             }
             in.ignore();
         }
+
+        if (!in)
+        {
+            warn("Unexpected end of stash.\n");
+            indices.clear();
+            return false;
+        }
         in.ignore();
 
-        while (!in.eof())
+        while (in)
         {
             std::string doc;
             std::getline(in, doc, UNIT_SEP);
