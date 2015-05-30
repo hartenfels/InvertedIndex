@@ -14,6 +14,9 @@ typedef std::back_insert_iterator<std::list<int> >           OutIt;
 typedef std::list<int>::const_iterator                        InIt;
 typedef std::function<OutIt (InIt, InIt, InIt, InIt, OutIt)> RowOp;
 
+constexpr char  GROUP_SEP = '\035',
+               RECORD_SEP = '\036',
+                 UNIT_SEP = '\037';
 
 class Row
 {
@@ -71,7 +74,7 @@ public:
     void stash(std::ofstream& out)
     {
         for (int i : ids)
-        {   out << i << '\037'; }
+        {   out << i << UNIT_SEP; }
     }
 
 
@@ -121,14 +124,14 @@ public:
 
         for (auto pair : indices)
         {
-            out << pair.first << '\037';
+            out << pair.first << UNIT_SEP;
             pair.second.stash(out);
-            out << '\036';
+            out << RECORD_SEP;
         }
-        out << '\035';
+        out << GROUP_SEP;
 
         for (std::string& doc : documents)
-        {   out << doc << '\037'; }
+        {   out << doc << UNIT_SEP; }
     }
 
 
@@ -137,14 +140,14 @@ public:
         std::ifstream in(path);
         if (!in) { return false; }
 
-        while (in.peek() != '\035')
+        while (in.peek() != GROUP_SEP)
         {
             std::string token;
-            std::getline(in, token, '\037');
-            while (in.peek() != '\036')
+            std::getline(in, token, UNIT_SEP);
+            while (in.peek() != RECORD_SEP)
             {
                 std::string id;
-                std::getline(in, id, '\037');
+                std::getline(in, id, UNIT_SEP);
                 indices[token].add_id(atoi(id.c_str()));
             }
             in.ignore();
@@ -154,7 +157,7 @@ public:
         while (!in.eof())
         {
             std::string doc;
-            std::getline(in, doc, '\037');
+            std::getline(in, doc, UNIT_SEP);
             documents.push_back(doc);
         }
 
