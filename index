@@ -10,14 +10,31 @@ use InvertedIndex;
 use Query;
 
 
-say 'Indexing...';
-my $start = time;
-
+my $docs  = shift // 'training.txt';
+my $stash = "$docs.stash";
 my $index = InvertedIndex->new;
-open my $fh, '<:encoding(utf-8)', shift || 'training.txt';
-$index->index($_) while <$fh>;
 
-say strftime 'Indexing took %M:%S' => gmtime(time - $start);
+
+if (-e $stash)
+{
+    say 'Unstashing...';
+    my $start = time;
+    $index->unstash($stash);
+    say strftime 'Unstashing took %M:%S' => gmtime(time - $start);
+}
+else
+{
+    say 'Indexing...';
+    my $start = time;
+
+    open my $fh, '<:encoding(utf-8)', $docs;
+    $index->index($_) while <$fh>;
+
+    say strftime 'Indexing took %M:%S' => gmtime(time - $start);
+
+    say 'Stashing..';
+    $index->stash($stash);
+}
 
 
 my $term = Term::ReadLine->new('InvertedIndex');

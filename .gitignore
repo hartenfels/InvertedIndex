@@ -1,4 +1,5 @@
 _Inline
 local
 cpanfile.snapshot
-training.txt
+*.txt
+*.stash

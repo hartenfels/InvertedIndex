@@ -1,3 +1,4 @@
+#include <fstream>
 #include <functional>
 #include <list>
 #include <sstream>
@@ -67,6 +68,15 @@ public:
     {   op_with(rhs, std::set_difference  <InIt, InIt, OutIt>); }
 
 
+    void stash(std::ofstream& out)
+    {
+        for (int i : ids)
+        {
+            out << i << '\037';
+        }
+    }
+
+
 private:
     std::list<int> ids;
 
@@ -104,6 +114,52 @@ public:
         return id >= 0 && id < documents.size()
              ? documents[id].c_str()
              : nullptr;
+    }
+
+
+    void stash(const char* path)
+    {
+        std::ofstream out(path);
+
+        for (auto pair : indices)
+        {
+            out << pair.first << '\037';
+            pair.second.stash(out);
+            out << '\036';
+        }
+        out << '\035';
+
+        for (std::string& doc : documents)
+        {
+            out << doc << '\037';
+        }
+    }
+
+
+    void unstash(const char* path)
+    {
+        std::ifstream in(path);
+
+        while (in.peek() != '\035')
+        {
+            std::string token;
+            std::getline(in, token, '\037');
+            while (in.peek() != '\036')
+            {
+                std::string id;
+                std::getline(in, id, '\037');
+                indices[token].add_id(atoi(id.c_str()));
+            }
+            in.ignore();
+        }
+        in.ignore();
+
+        while (in.peek() != EOF)
+        {
+            std::string doc;
+            std::getline(in, doc, '\037');
+            documents.push_back(doc);
+        }
     }
 
 
