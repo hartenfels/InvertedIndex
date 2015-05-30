@@ -6,10 +6,10 @@ use InvertedIndex;
 
 
 my @DOCS = (
-    'The quick brown fox jumped over the lazy dog.',
-    'Fußball with the ß .',
-    'the fussball with a double-s',
-    'FUSSBALL WITH THE UPPER-CASE',
+    'The quick brown fox jumped over the lazy x dog.',
+    'Fußball with the ß . x',
+    'the fussball with X a double-s',
+    'FUSSBALL WITH THE X UPPER-CASE',
 );
 
 
@@ -36,7 +36,7 @@ sub fetch_ok
 fetch_ok 'nothing',  [],       'fetching empty row';
 fetch_ok 'quick',    [0],      'fetching a single row exactly';
 fetch_ok 'QuIcK',    [0],      'fetching a single row in wrong case';
-fetch_ok 'the',      [0 .. 3], 'fetching all rows';
+fetch_ok 'x',        [0 .. 3], 'fetching all rows';
 
 fetch_ok 'fußball',  [1 .. 3], 'fetching fußball folds case';
 fetch_ok 'fussball', [1 .. 3], 'fetching fussball also works';
@@ -44,10 +44,13 @@ fetch_ok 'FUSSBALL', [1 .. 3], 'so does fetching FUSSBALL';
 
 fetch_ok 'dog',      [],       'punctuation is not stripped';
 fetch_ok 'dog.',     [0],      'fetching with punctuation works';
-fetch_ok '.',        [1],      'fetching punctuation on its own works too';
 
 fetch_ok 'foxes',    [0],      'stemmer works as expected';
 fetch_ok 'FUßBAL',   [1 .. 3], 'stemming happens after case folding';
+
+
+fetch_ok 'the',      [],       'stopwords are stripped';
+fetch_ok '.',        [],       'punctuation on its own too';
 
 
 done_testing
