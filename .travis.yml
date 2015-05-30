@@ -1,0 +1,11 @@
+before_install :
+    - sudo apt-get update -qq
+    - sudo apt-get install -qq carton
+install        : make install
+script         : make test
+language       : perl
+perl           :
+  - "5.20"
+  - "5.18"
+  - "5.16"
+  - "5.14"
