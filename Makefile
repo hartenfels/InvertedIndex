@@ -10,9 +10,9 @@ run:
 	carton exec ./index
 
 clean:
-	rm -rf _Inline
+	rm -rf _Inline *.stash
 
 realclean: clean
-	rm -rf local
+	rm -rf local cpanfile.snapshot
 
 .PHONY: all install test run clean realclean
