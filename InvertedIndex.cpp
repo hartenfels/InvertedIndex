@@ -128,9 +128,7 @@ public:
         out << '\035';
 
         for (std::string& doc : documents)
-        {
-            out << doc << '\037';
-        }
+        {   out << doc << '\037'; }
     }
 
 
