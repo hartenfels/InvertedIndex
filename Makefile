@@ -10,6 +10,9 @@ run:
 	carton exec ./index
 
 clean:
-	rm -r local
+	rm -rf _Inline
 
-.PHONY: all install test run clean
+realclean: clean
+	rm -rf local
+
+.PHONY: all install test run clean realclean
