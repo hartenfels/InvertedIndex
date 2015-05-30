@@ -1,6 +1,6 @@
 before_install : cpanm Carton
 install        : make install
-script         : make test
+script         : g++ --version
 language       : perl
 perl           :
   - "5.20"
