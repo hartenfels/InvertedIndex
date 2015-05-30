@@ -18,7 +18,6 @@ and_rows [1, 2, 3], [1, 2, 3], [1, 2, 3], 'ANDing identical rows';
 
 
 and_rows [7, 27, 28], [6, 14, 27], [27], 'ANDing stuff';
-diag 'TODO: make more AND tests';
 
 
 done_testing

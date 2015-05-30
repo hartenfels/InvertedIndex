@@ -18,7 +18,6 @@ but_rows [1, 2, 3], [1, 2, 3], [],        'BUTing identical rows';
 
 
 but_rows [7, 27, 28], [6, 14, 27], [7, 28], 'BUTing stuff';
-diag 'TODO: make more BUT tests';
 
 
 done_testing
