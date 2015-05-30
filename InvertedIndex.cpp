@@ -41,10 +41,10 @@ public:
     SV* listref()
     {
         AV* arr = newAV();
+
         for (int i : ids)
-        {
-            av_push(arr, newSViv(i));
-        }
+        {   av_push(arr, newSViv(i)); }
+
         return newRV_noinc(reinterpret_cast<SV*>(arr));
     }
 
