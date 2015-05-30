@@ -1,6 +1,4 @@
-before_install :
-    - sudo apt-get update -qq
-    - sudo apt-get install -qq carton
+before_install : cpanm Carton
 install        : make install
 script         : make test
 language       : perl
