@@ -7,12 +7,12 @@ use Parse::RecDescent;
 
 my $parser = Parse::RecDescent->new(<<'END_GRAMMAR');
 
-    query  : but /^\Z/               { $item[1]                }
-    but    : <leftop: or   '-' or  > { Query::do_op(@item)     }
-    or     : <leftop: and  '|' and > { Query::do_op(@item)     }
-    and    : <leftop: atom '&' atom> { Query::do_op(@item)     }
-    atom   : '(' but ')'             { $item[2]                }
-           | /[^\s\(\)]+/            { Query::do_tok($item[1]) }
+    query  : but /^\Z/                    { $item[1]                }
+    but    : <leftop: or   /but|-/i or  > { Query::do_op(@item)     }
+    or     : <leftop: and  /or|\|/i and > { Query::do_op(@item)     }
+    and    : <leftop: atom /and|&/i atom> { Query::do_op(@item)     }
+    atom   : '(' but ')'                  { $item[2]                }
+           | /[^\s\(\)]+/                 { Query::do_tok($item[1]) }
 
 END_GRAMMAR
 
