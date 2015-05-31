@@ -2,7 +2,6 @@ package Query;
 use strict;
 use warnings;
 use feature qw(fc);
-use InvertedIndex;
 use Marpa::R2;
 
 my $separator = 'proper => 1 separator';
