@@ -1,0 +1,17 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+use Data::Dumper;
+use Term::ReadLine;
+use Query;
+
+my $term = Term::ReadLine->new('recdescent');
+while (defined($_ = $term->readline('query: ')))
+{
+    eval
+    {
+        my $query = Query::parse($_);
+        print Dumper($query);
+    };
+    warn $@ if $@;
+}

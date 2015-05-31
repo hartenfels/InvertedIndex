@@ -34,14 +34,16 @@ say strftime 'Index built after %M:%S' => gmtime(time - $start);
 my $term = Term::ReadLine->new('InvertedIndex');
 while (defined($_ = $term->readline('query: ')))
 {
-    eval
+    if (my $query = Query::parse(decode 'UTF-8' => $_))
     {
-        my $query = Query::parse(decode 'UTF-8' => $_);
-        my $row   = $query->run($index)->listref;
+        my $row = $query->run($index)->listref;
         print $_, "\t", $index->get_document($_) for @$row;
         say scalar @$row, " results";
-    };
-    warn "Invalid query: $@\n" if $@;
+    }
+    else
+    {
+        warn "Invalid query.\n";
+    }
 }
 
 print "\nCleaning up, this may take a bit...\n";

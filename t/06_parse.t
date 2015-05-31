@@ -3,14 +3,14 @@ use Query;
 *p = *Query::parse;
 
 
-dies_ok { p('') }      'empty query dies';
-dies_ok { p(' ') }     'query with just whitespace dies';
-dies_ok { p('a a') }   'double token dies';
-dies_ok { p('a a a') } 'invalid operand dies';
-dies_ok { p('a &') }   'missing operand dies';
-dies_ok { p('((a)') }  'mismatched parens dies';
-dies_ok { p('(') }     'single paren dies';
-dies_ok { p('(())') }  'just parens dies';
+ok !defined p(''),      'empty query fails';
+ok !defined p(' '),     'query with just whitespace fails';
+ok !defined p('a a'),   'double token fails';
+ok !defined p('a a a'), 'invalid operand fails';
+ok !defined p('a &'),   'missing operand fails';
+ok !defined p('((a)'),  'mismatched parens fails';
+ok !defined p('('),     'single paren fails';
+ok !defined p('(())'),  'just parens fails';
 
 
 is_deeply p('a'),      \'a',    'query with single token';

@@ -2,54 +2,35 @@ package Query;
 use strict;
 use warnings;
 use feature qw(fc);
-use Marpa::R2;
-
-my $separator = 'proper => 1 separator';
-my $grammar   = <<END;
-
-    lexeme default = latm => 1
-
-    Query    ::= But                      action => ::first
-    But      ::= Or+   $separator => but  action => do_but
-    Or       ::= And+  $separator => or   action => do_or
-    And      ::= Atom+ $separator => and  action => do_and
-    Atom     ::= '(' But ')'              action => do_par
-               |    Token                 action => do_tok
-
-    Token      ~ text
-    :discard   ~ whitespace
-
-    text       ~ [^\\s()]+
-    and        ~ '&'
-    or         ~ '|'
-    but        ~ '-'
-    whitespace ~ [\\s]+
-
-END
+use Parse::RecDescent;
 
 
-my $parser = Marpa::R2::Scanless::G->new({source => \$grammar});
+my $parser = Parse::RecDescent->new(<<'END_GRAMMAR');
 
-sub parse { ${$parser->parse(\shift, 'Query')} }
+    query  : but /^\Z/               { $item[1]                }
+    but    : <leftop: or   '-' or  > { Query::do_op(@item)     }
+    or     : <leftop: and  '|' and > { Query::do_op(@item)     }
+    and    : <leftop: atom '&' atom> { Query::do_op(@item)     }
+    atom   : '(' but ')'             { $item[2]                }
+           | /[^\s\(\)]+/            { Query::do_tok($item[1]) }
+
+END_GRAMMAR
+
+sub parse { $parser->query(@_) }
 
 
 sub do_tok
 {
-    my (undef, $token) = @_;
-    bless \$token => 'Query::Token'
+    my ($token) = @_;
+    bless \$token, 'Query::Token'
 }
 
 sub do_op
 {
-    my ($op, undef, @args) = @_;
-    return $args[0] if @args == 1;
-    bless [$op, @args] => 'Query::Op'
+    my ($op, $args) = @_;
+    return $args->[0] if @$args == 1;
+    bless ["${op}_with", @$args] => 'Query::Op'
 }
-
-sub do_but { do_op(but_with => @_) }
-sub do_or  { do_op( or_with => @_) }
-sub do_and { do_op(and_with => @_) }
-sub do_par { $_[2] }
 
 
 sub Query::Token::run
