@@ -14,8 +14,7 @@ typedef std::back_insert_iterator<std::list<int> >           OutIt;
 typedef std::list<int>::const_iterator                        InIt;
 typedef std::function<OutIt (InIt, InIt, InIt, InIt, OutIt)> RowOp;
 
-static constexpr char  GROUP_SEP = '\035',
-                      RECORD_SEP = '\036',
+static constexpr char RECORD_SEP = '\036',
                         UNIT_SEP = '\037';
 
 class Row
@@ -88,14 +87,6 @@ class InvertedIndex
 {
 public:
 
-    int add_document(const char* document)
-    {
-        int id = documents.size();
-        documents.push_back(document);
-        return id;
-    }
-
-
     void add_token(int id, const char* token)
     {
         indices[token].add_id(id);
@@ -107,14 +98,6 @@ public:
         auto it = indices.find(token);
         if (it != indices.end())
         {   *out = it->second; }
-    }
-
-
-    const char* get_document(int id) const
-    {
-        return id >= 0 && id < documents.size()
-             ? documents[id].c_str()
-             : nullptr;
     }
 
 
@@ -133,10 +116,6 @@ public:
             pair.second.stash(out);
             out << RECORD_SEP;
         }
-        out << GROUP_SEP;
-
-        for (std::string& doc : documents)
-        {   out << doc << UNIT_SEP; }
     }
 
 
@@ -149,7 +128,7 @@ public:
             return false;
         }
 
-        while (in && in.peek() != GROUP_SEP)
+        while (in)
         {
             std::string token;
             std::getline(in, token, UNIT_SEP);
@@ -162,28 +141,12 @@ public:
             in.ignore();
         }
 
-        if (!in)
-        {
-            warn("Unexpected end of stash.\n");
-            indices.clear();
-            return false;
-        }
-        in.ignore();
-
-        while (in)
-        {
-            std::string doc;
-            std::getline(in, doc, UNIT_SEP);
-            documents.push_back(doc);
-        }
-
         return true;
     }
 
 
 private:
 
-    std::vector<std::string> documents;
     std::unordered_map<std::string, Row> indices;
 
 };

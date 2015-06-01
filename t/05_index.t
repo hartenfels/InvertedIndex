@@ -14,17 +14,7 @@ my @DOCS = (
 
 
 ok my $index = InvertedIndex->new, 'creating index works';
-$index->index($_) for @DOCS;
-
-
-for (0 .. $#DOCS)
-{
-    is decode('UTF-8', $index->get_document($_)), $DOCS[$_], "get_document($_)";
-}
-
-ok !defined $index->get_document(-1),           'small document ID gives undef';
-ok !defined $index->get_document(scalar @DOCS), 'large document ID gives undef';
-
+$index->index($_, $DOCS[$_]) for 0 .. $#DOCS;
 
 sub fetch_ok
 {

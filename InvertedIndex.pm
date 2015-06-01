@@ -24,8 +24,7 @@ HERE
 
 sub index
 {
-    my ($self, $document) = @_;
-    my $id    = $self->add_document($document);
+    my ($self, $id, $document) = @_;
     my @words = grep { not exists $stopwords{$_} } split ' ', fc $document;
     $stemmer->stem_in_place(\@words);
     $self->add_token($id, $_) for @words;
