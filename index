@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use feature qw(say);
+use feature    qw(say);
 use autodie;
-use Encode  qw(decode);
-use POSIX   qw(strftime);
+use Encode     qw(decode);
+use List::Util qw(max);
+use POSIX      qw(strftime);
 use Term::ReadLine;
 use InvertedIndex;
 use Query;
@@ -12,6 +13,7 @@ use Query;
 
 my $docs  = shift // 'training.txt';
 my $stash = "$docs.stash";
+open my $fh, '<', $docs;
 
 say 'Building index...';
 my $start = time;
@@ -21,10 +23,14 @@ say "Trying to unstash $stash...";
 unless ($index->unstash($stash))
 {
     say "Indexing $docs...";
-    open my $fh, '<:encoding(utf-8)', $docs;
-    $index->index($., $_) while <$fh>;
+    while (1)
+    {
+        my $id       = tell $fh;
+        my $document = <$fh> // last;
+        $index->index($id, decode 'UTF-8' => $document);
+    }
 
-    say 'Stashing..';
+    say 'Stashing...';
     $index->stash($stash);
 }
 
@@ -37,7 +43,11 @@ while (defined($_ = $term->readline('query: ')))
     if (my $query = Query::parse(decode 'UTF-8' => $_))
     {
         my $row = $query->run($index)->listref;
-        say for @$row;
+        for (@$row)
+        {
+            seek $fh, $_, 0;
+            print $_, "\t", scalar <$fh>;
+        }
         say scalar @$row, " results";
     }
     else
