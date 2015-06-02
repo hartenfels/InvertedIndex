@@ -23,7 +23,7 @@ say "Trying to unstash $stash...";
 unless ($index->unstash($stash))
 {
     say "Indexing $docs...";
-    while (1)
+    for (;;)
     {
         my $id       = tell $fh;
         my $document = <$fh> // last;

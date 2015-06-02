@@ -14,8 +14,19 @@ typedef std::back_insert_iterator<std::list<int> >           OutIt;
 typedef std::list<int>::const_iterator                        InIt;
 typedef std::function<OutIt (InIt, InIt, InIt, InIt, OutIt)> RowOp;
 
-static constexpr char RECORD_SEP = '\036',
-                        UNIT_SEP = '\037';
+
+template <typename T> static void
+pack(const T& t, std::ofstream& out)
+{   out.write(reinterpret_cast<const char*>(&t), sizeof(T)); }
+
+template <typename T> static T
+unpack(std::ifstream& in)
+{
+    T t;
+    in.read(reinterpret_cast<char*>(&t), sizeof(T));
+    return t;
+}
+
 
 class Row
 {
@@ -72,8 +83,16 @@ public:
 
     void stash(std::ofstream& out)
     {
+        pack<std::list<int>::size_type>(ids.size(), out);
         for (int i : ids)
-        {   out << i << UNIT_SEP; }
+        {   pack<int>(i, out); }
+    }
+
+    void unstash(std::ifstream& in)
+    {
+        auto count = unpack<std::list<int>::size_type>(in);
+        while (count--)
+        {   ids.push_back(unpack<int>(in)); }
     }
 
 
@@ -112,9 +131,9 @@ public:
 
         for (auto pair : indices)
         {
-            out << pair.first << UNIT_SEP;
+            pack<std::string::size_type>(pair.first.size(), out);
+            out.write(pair.first.c_str(), pair.first.size());
             pair.second.stash(out);
-            out << RECORD_SEP;
         }
     }
 
@@ -128,17 +147,12 @@ public:
             return false;
         }
 
-        while (in)
+        while (in.peek() != EOF)
         {
-            std::string token;
-            std::getline(in, token, UNIT_SEP);
-            while (in && in.peek() != RECORD_SEP)
-            {
-                std::string id;
-                std::getline(in, id, UNIT_SEP);
-                indices[token].add_id(atoi(id.c_str()));
-            }
-            in.ignore();
+            auto count = unpack<std::string::size_type>(in);
+            std::string token(count, ' ');
+            in.read(&token[0], count);
+            indices[token].unstash(in);
         }
 
         return true;
