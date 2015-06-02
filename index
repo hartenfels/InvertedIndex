@@ -1,14 +1,16 @@
 #!/usr/bin/perl
 use strict;
 use warnings;
-use feature    qw(say);
+use feature     qw(say);
 use autodie;
-use Encode     qw(decode);
-use List::Util qw(max);
-use POSIX      qw(strftime);
+use Encode      qw(decode);
+use List::Util  qw(max);
+use POSIX       qw(strftime);
 use Term::ReadLine;
+use Time::HiRes qw(gettimeofday tv_interval);
 use InvertedIndex;
 use Query;
+use Data::Dumper;
 
 
 my $docs  = shift // 'training.txt';
@@ -40,6 +42,7 @@ say strftime 'Index built after %M:%S' => gmtime(time - $start);
 my $term = Term::ReadLine->new('InvertedIndex');
 while (defined($_ = $term->readline('query: ')))
 {
+    my $start = [gettimeofday];
     if (my $query = Query::parse(decode 'UTF-8' => $_))
     {
         my $row = $query->run($index)->listref;
@@ -48,7 +51,7 @@ while (defined($_ = $term->readline('query: ')))
             seek $fh, $_, 0;
             print $_, "\t", scalar <$fh>;
         }
-        say scalar @$row, " results";
+        say scalar @$row, ' results in ', tv_interval($start), ' seconds';
     }
     else
     {
