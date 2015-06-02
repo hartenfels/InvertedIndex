@@ -4,13 +4,11 @@ use warnings;
 use feature     qw(say);
 use autodie;
 use Encode      qw(decode);
-use List::Util  qw(max);
 use POSIX       qw(strftime);
 use Term::ReadLine;
 use Time::HiRes qw(gettimeofday tv_interval);
 use InvertedIndex;
 use Query;
-use Data::Dumper;
 
 
 my $docs  = shift // 'training.txt';
